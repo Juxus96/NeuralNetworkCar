@@ -11,6 +11,7 @@ public class NeuralController : MonoBehaviour
     // Inspector change
     public float sensorLenght;
     public int populationPerGen;
+    public int mutationChance;
 
     // Variables of each car
     private float driveTime = 0;
@@ -146,7 +147,7 @@ public class NeuralController : MonoBehaviour
     private void ResetCarPosition()
     {
         rb.Sleep();
-        transform.position = new Vector3(0, 0.36f, 0);
+        transform.position = new Vector3(0, 0.72f, 0);
         transform.rotation = new Quaternion(0, 0, 0, 0);
     }
 
@@ -200,7 +201,7 @@ public class NeuralController : MonoBehaviour
         for (int i = 0; i < populationPerGen; i++)
         {
             distance[i] = 0;
-            carNetworks[i] = new NeuralNetwork(father, mother);
+            carNetworks[i] = new NeuralNetwork(father, mother, mutationChance);
         }
         ++Generation;
     }

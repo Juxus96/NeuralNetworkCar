@@ -12,7 +12,7 @@ public class NeuralNetwork {
 	public int [] layerNodes;
 
     // Creates a new NeuralNetwork getting a combination of other 2, and mutates 1 of its weights
-	public NeuralNetwork(NeuralNetwork Dad, NeuralNetwork Mom)
+	public NeuralNetwork(NeuralNetwork Dad, NeuralNetwork Mom, float mutationRate)
 	{
 		layerNodes = Mom.layerNodes;
 		initializeVariables ();
@@ -27,19 +27,27 @@ public class NeuralNetwork {
 
                 for (int k = 0; k < layerNodes [i + 1]; k++)
                 {
-					if (Random.Range (0, 2) == 0)
-                        weights [i] [j] [k] = Mom.weights [i] [j] [k];
-                    else 
-						weights [i] [j] [k] = Dad.weights [i] [j] [k];		
+                    if(Random.Range(0.0f,100.0f) >= mutationRate)
+                    {
+                        if (Random.Range(0, 2) == 0)
+                            weights[i][j][k] = Mom.weights[i][j][k];
+                        else
+                            weights[i][j][k] = Dad.weights[i][j][k];
+                    }
+                    else
+                    {
+                        weights[i][j][k] = GetRandomWeight();
+                    }
+						
                 }
 			}
 		}
 
-		int mutationLayer = Random.Range(0, weights.Length);
-		int mutationLeft  = Random.Range(0, weights[mutationLayer].Length);
-		int mutationRight = Random.Range(0, weights[mutationLayer][mutationLeft].Length);
+		//int mutationLayer = Random.Range(0, weights.Length);
+		//int mutationLeft  = Random.Range(0, weights[mutationLayer].Length);
+		//int mutationRight = Random.Range(0, weights[mutationLayer][mutationLeft].Length);
 
-        weights [mutationLayer] [mutationLeft] [mutationRight] = GetRandomWeight ();
+        //weights [mutationLayer] [mutationLeft] [mutationRight] = GetRandomWeight ();
 	}
 			
     // Creates NeuralNetwork with the given layers and nodes
