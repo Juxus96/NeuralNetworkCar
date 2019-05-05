@@ -1,67 +1,61 @@
 ﻿using UnityEngine;
 
 
-public class NeuralController : MonoBehaviour {
+public class NeuralController : MonoBehaviour
+{
 
+    // Inspector change
 	public float sensorLenght;
-    private Rigidbody rb;
+    public int timeScale;
+	public int population;
 
-	private Vector3 fRaycast;
+    // Variables of each car
+    [SerializeField] private float driveTime = 0;
+    private Vector3 lastFramePos;
+    private Vector3 fRaycast;
     private Vector3 rRaycast;
     private Vector3 lRaycast;
+    private RaycastHit hit;
+    private Rigidbody rb;
 
-    public int timeScale;
-
-	public int population;
-	public static int staticPopulation;
-
-    public float driveTime = 0;
-	public static float steering;
-	public static float braking;
+    // Output variables
+    public static float steering;
 	public static float motor;
 
+    // for UI
+	public static int staticPopulation;
 	public static int generation = 0;
-	public float [] distance;
-	public float[] results;
-	private float[] sensors;
 	public static int currentCar = 0;
-
 	public static float bestDistance = 0;
 
+	[SerializeField] private float[] distance;
+    private float[] results;
+	private float[] sensors;
 
-	NeuralNetwork [] carNetworks;
-	RaycastHit hit;
+    private NeuralNetwork[] carNetworks;
 
-	Vector3 lastFramePos;
-
-    // Use this for initialization
     void Start()
     {
+        // 3- Input Layer | 4 - Hidden Layer | 2 - Output Layer
 		int[] parameters = { 3, 4, 2 };
-		staticPopulation = population;
-
-        Time.timeScale = timeScale;
 
         rb = GetComponent<Rigidbody>();
+		staticPopulation = population;
+        lastFramePos = transform.position;
 
-        results = new float[2];
+        results  = new float[2];
         distance = new float[population];
-        sensors = new float[3];
+        sensors  = new float[3];
 
-
-		//default vector values
+		// Sensor directions
         fRaycast = Vector3.forward * 2;
         rRaycast = new Vector3(0.4f, 0, 0.7f);
         lRaycast = new Vector3(-0.4f, 0, 0.7f);
        
-        lastFramePos = transform.position;
         carNetworks = new NeuralNetwork[population];
 
-
         for (int i = 0; i < population; i++)
-        {
 			carNetworks[i] = new NeuralNetwork(parameters);
-        }
 
     }
 
@@ -71,10 +65,9 @@ public class NeuralController : MonoBehaviour {
 		sensors [1] = GetSensor (fRaycast);
 		sensors [2] = GetSensor (rRaycast);
 
-
-		results = carNetworks[currentCar].Process(sensors);
-		steering =  results [0];
-		motor = results [1];
+		results  = carNetworks[currentCar].Process(sensors);
+		steering = results [0];
+		motor    = results  [1];
 
 		driveTime += Time.deltaTime;
 
@@ -83,22 +76,19 @@ public class NeuralController : MonoBehaviour {
 
 	}
 	
-	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
         
 		Time.timeScale = timeScale;
         
-		//check if the network is moving
+        // Check if its stopped
 		if(driveTime > 3 && rb.velocity.magnitude<0.005)
         {
-			//Debug.Log ("This one stands still!");
             OnCollisionEnter(null);
         }
 
 	}
 
-
-	//game over, friend :/
 	private void OnCollisionEnter (Collision col)
 	{
         Crashed();
@@ -107,44 +97,43 @@ public class NeuralController : MonoBehaviour {
     private void ResetCarPosition()
     {
         rb.Sleep();
-        transform.position = new Vector3(0, 1, 0);
+        transform.position = new Vector3(0, 0.36f, 0);
         transform.rotation = new Quaternion(0, 0, 0, 0);
     }
 
-
-		
-
-	private float GetSensor(Vector3 direction)
+    // Returns a value from 1 to 0 depending on the distance to the obejct hit, 1 - close 0 - far
+	private float GetSensor(Vector3 _direction)
 	{
-		Vector3 fwd = transform.TransformDirection(direction);
+		Vector3 direction = transform.TransformDirection(_direction);
         float result = 0.0f;
-		if (Physics.Raycast (transform.position, fwd, out hit)) {
-			if (hit.distance < sensorLenght) {
-				Debug.DrawRay (transform.position, fwd * sensorLenght, Color.red, 0, true);
+		if (Physics.Raycast (transform.position, direction, out hit))
+        {
+			if (hit.distance < sensorLenght)
+            {
+				Debug.DrawRay (transform.position, direction * sensorLenght, Color.red, 0, true);
 				result = 1f - hit.distance / sensorLenght;
-			} else {
-				Debug.DrawRay (transform.position, fwd * sensorLenght, Color.green, 0, true);
 			}
+            else
+				Debug.DrawRay (transform.position, direction * sensorLenght, Color.green, 0, true);
 		}
 		else
-			Debug.DrawRay(transform.position, fwd * sensorLenght, Color.green, 0, true);
+			Debug.DrawRay(transform.position, direction * sensorLenght, Color.green, 0, true);
 
 		return result;
 	}
-
+    // Returns the best car depending on the distance.
     private NeuralNetwork GetFittest()
     {
         float maxValue = distance[0];
         int maxIndex = 0;
 
         for (int i = 1; i < population; i++)
-        {
             if (distance[i] > maxValue)
             {
                 maxIndex = i;
                 maxValue = distance[i];
             }
-        }
+
         if (distance[maxIndex] > bestDistance)
             bestDistance = distance[maxIndex];
 
@@ -153,6 +142,7 @@ public class NeuralController : MonoBehaviour {
         return carNetworks[maxIndex];
     }
 
+    // Creates a new generation with the best 2 of the last one
     private void CreateNewGen()
     {
         NeuralNetwork father = GetFittest();
@@ -165,6 +155,7 @@ public class NeuralController : MonoBehaviour {
         generation++;
     }
 
+    // Resets the car and if was the last one creates the new gen
     private void Crashed()
     {
         ResetCarPosition();
