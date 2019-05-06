@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// Handles Neural network layers and nodes
+/// </summary>
 [System.Serializable]
 public class NeuralNetwork {
 
@@ -15,7 +18,7 @@ public class NeuralNetwork {
 	public NeuralNetwork(NeuralNetwork Dad, NeuralNetwork Mom, float mutationRate)
 	{
 		layerNodes = Mom.layerNodes;
-		initializeVariables ();
+		InitializeVariables ();
 
 		for (int i = 0; i < layerNodes.Length - 1; i++)
         {
@@ -54,7 +57,7 @@ public class NeuralNetwork {
 	public NeuralNetwork(int [] _layerNodes)
 	{
 		layerNodes = _layerNodes;
-		initializeVariables ();
+		InitializeVariables ();
 
 		for (int i = 0; i < layerNodes.Length - 1 ; i++)
         {
@@ -71,7 +74,7 @@ public class NeuralNetwork {
 
 	}
 
-    private void initializeVariables()
+    private void InitializeVariables()
     {
         weights = new float[layerNodes.Length - 1][][];
         layerCount = layerNodes.Length;
@@ -95,7 +98,7 @@ public class NeuralNetwork {
             inputs = new float[outputs.Length];
 
 			for (int l = 0; l < outputs.Length; l++) 
-				inputs [l] = Sigmoid(outputs [l] * 5);
+				inputs [l] = GetLogValue(outputs [l] * 5);
 		}
 		return inputs;
 	}
@@ -105,9 +108,9 @@ public class NeuralNetwork {
 		return Random.Range(-1.0f, 1.0f);              
     }
 
-    private float Sigmoid(float x)
+    private float GetLogValue(float value)
     {
-        return 1 / (1 + Mathf.Exp(-x));
+        return 1 / (1 + Mathf.Exp(-value));
     }
 
 }

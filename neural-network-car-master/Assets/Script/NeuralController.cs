@@ -1,7 +1,9 @@
 ﻿using TMPro;
 using UnityEngine;
 
-
+/// <summary>
+/// Handles the
+/// </summary>
 public class NeuralController : MonoBehaviour
 {
 
@@ -117,6 +119,9 @@ public class NeuralController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Updates raycast sensors and processes the neural network
+    /// </summary>
 	void FixedUpdate()
 	{
         if (Started)
@@ -153,12 +158,19 @@ public class NeuralController : MonoBehaviour
             
 	}
 
+    /// <summary>
+    /// If the car crashed the respawn another one
+    /// </summary>
+    /// <param name="col"></param>
 	private void OnCollisionEnter (Collision col)
 	{
         if (col.collider.CompareTag("Circuit"))
             Crashed();
     }
 
+    /// <summary>
+    /// Reset for the next car
+    /// </summary>
     private void ResetCarPosition()
     {
         rb.Sleep();
@@ -187,6 +199,7 @@ public class NeuralController : MonoBehaviour
 
 		return result;
 	}
+
     // Returns the best car depending on the distance.
     private NeuralNetwork GetFittest()
     {
