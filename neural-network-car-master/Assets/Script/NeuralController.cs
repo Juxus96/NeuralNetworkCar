@@ -23,15 +23,15 @@ public class NeuralController : MonoBehaviour
     private Rigidbody rb;
 
     // Output variables
-    public float steering;
-	public float motor;
+    [HideInInspector] public float steering;
+    [HideInInspector] public float motor;
 
-    // for UI
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI timeScaleText;
     [SerializeField] private TextMeshProUGUI generationText;
     [SerializeField] private TextMeshProUGUI numberText;
     [SerializeField] private TextMeshProUGUI bestDistanceText;
+    [SerializeField] private TextMeshProUGUI currentDistanceText;
     
 
     private int generation = 1;
@@ -63,7 +63,18 @@ public class NeuralController : MonoBehaviour
         set
         {
             bestDistance = value;
-            bestDistanceText.text = "Best Distance: " + bestDistance.ToString("F2");
+            bestDistanceText.text = "BestDistance: " + bestDistance.ToString("F1");
+        }
+    }
+
+    private float currentDistance;
+    public float CurrentDistance
+    {
+        get { return currentDistance; }
+        set
+        {
+            currentDistance = value;
+            currentDistanceText.text = "CurrentDistance: " + currentDistance.ToString("F1");
         }
     }
 
@@ -120,7 +131,11 @@ public class NeuralController : MonoBehaviour
 
             driveTime += Time.deltaTime;
 
-            distance[currentCar] += Vector3.Distance(lastFramePos, transform.position);
+            CurrentDistance = distance[currentCar] += Vector3.Distance(lastFramePos, transform.position);
+
+            if (currentDistance > bestDistance)
+                BestDistance = currentDistance;
+
             lastFramePos = transform.position;
         }
 	}
@@ -211,6 +226,11 @@ public class NeuralController : MonoBehaviour
     {
         ResetCarPosition();
         driveTime = 0;
+
+        
+
+        CurrentDistance = 0;
+
         GetComponent<TrailRenderer>().Clear();
         ++CurrentCar;
         lastFramePos = transform.position;
